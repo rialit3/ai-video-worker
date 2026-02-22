@@ -1,28 +1,16 @@
-require("dotenv").config();
-const { Worker } = require("bullmq");
-const Redis = require("ioredis");
+﻿import { Worker } from 'bullmq';
+import IORedis from 'ioredis';
 
-const connection = new Redis(process.env.REDIS_URL);
+const connection = new IORedis(process.env.REDIS_URL, {
+  maxRetriesPerRequest: null
+});
 
 const worker = new Worker(
-  "video-generation",
-  async (job) => {
-    const { projectId, topic } = job.data;
-
-    console.log("Processing project:", projectId);
-    console.log("Topic:", topic);
-
-    // Здесь позже будет:
-    // 1. Разбивка темы
-    // 2. Генерация аудио
-    // 3. Генерация teacher video
-    // 4. Merge с gameplay
-
-    return true;
+  'videoQueue',
+  async job => {
+    console.log('Processing job:', job.data);
   },
   { connection }
 );
 
-worker.on("completed", (job) => {
-  console.log("Completed:", job.id);
-});
+console.log('Worker started');
